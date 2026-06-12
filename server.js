@@ -2,11 +2,23 @@ const express = require("express");
 const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
+const path = require("path");
 
 const PORT = process.env.PORT || 3000;
 
-app.use(express.static(__dirname + "/public"));
+/* =======================
+   STATIC FILES (FIX CANONICO)
+======================= */
+app.use(express.static(path.join(__dirname, "public")));
 
+/* FIX: homepage esplicita */
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+/* =======================
+   SOCKET.IO MULTIPLAYER
+======================= */
 io.on("connection", (socket) => {
 
     socket.on("joinRoom", ({ room, username }) => {
@@ -42,8 +54,12 @@ io.on("connection", (socket) => {
             });
         }
     });
+
 });
 
+/* =======================
+   START SERVER (RENDER FIX)
+======================= */
 http.listen(PORT, () => {
-    console.log("Server running on " + PORT);
+    console.log("Server running on port " + PORT);
 });
